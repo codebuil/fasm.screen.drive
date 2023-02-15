@@ -1,13 +1,16 @@
         ORG   100h
 USE16
 call intF0set
-call clear
+        mov edx,1
+        int 0xf0
 mov eax,0
 mov ebx,22
-call locate
+        mov edx,2
+        int 0xf0
 mov ecx,16
 for1:
         mov ax,msg
+        mov edx,0
         int 0xf0
         dec ecx
         cmp ecx,0
@@ -228,7 +231,19 @@ IntF0:
         push esi
         push ds
         push es
+             cmp edx,0
+             jnz IntF00
              call print
+             IntF00:
+             cmp edx,1
+             jnz IntF01
+             call clear
+             IntF01:
+             cmp edx,2
+             jnz IntF02
+             call locate
+             IntF02:
+
         pop es
         pop ds
         pop esi
