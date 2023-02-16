@@ -10,6 +10,7 @@ mov ebx,22
 mov ecx,16
 for1:
         mov ax,msg
+        mov ebx,2
         mov edx,0
         int 0xf0
         dec ecx
@@ -63,6 +64,7 @@ print:
         push ds
         push es
         push ax
+        mov ecx,ebx
         ds
         mov dword eax,[xxxx]
         pop bx
@@ -150,6 +152,7 @@ copyb8000:
         add edi,eax
         mov eax,0
         mov ds,ax
+        mov ah,cl
         push cs
         pop es
         copyb8000ss:
@@ -159,6 +162,8 @@ copyb8000:
                 mov [edi],al
                 inc ebx
                 inc edi
+                ds
+                mov [edi],ah
                 inc edi
                 cmp al,0
                 jnz copyb8000ss
