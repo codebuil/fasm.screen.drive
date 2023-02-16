@@ -2,6 +2,7 @@
 USE16
 call intF0set
         mov edx,1
+        mov eax,0x20
         int 0xf0
 mov eax,0
 mov ebx,22
@@ -10,7 +11,7 @@ mov ebx,22
 mov ecx,16
 for1:
         mov ax,msg
-        mov ebx,2
+        mov ebx,0x20
         mov edx,0
         int 0xf0
         dec ecx
@@ -186,15 +187,18 @@ clear:
         push esi
         push ds
         push es
+        mov edx,eax
         mov ax,0
         mov ds,ax
         mov es,ax
         mov edi,0b8000h
-        mov ecx,4160
+        mov ecx,2080
+        mov ah,dl
         mov al,20h
         clearss:
                 ds
-                mov     [edi],al
+                mov[edi],ax
+                inc edi
                 inc edi
                 dec ecx
                 cmp ecx,0h
