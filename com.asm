@@ -1,8 +1,10 @@
         ORG   100h
 USE16
 call intF0set
+        mov edx,3
+        mov al,0x20
+        int 0xf0
         mov edx,1
-        mov eax,0x20
         int 0xf0
 mov eax,0
 mov ebx,22
@@ -11,7 +13,6 @@ mov ebx,22
 mov ecx,16
 for1:
         mov ax,msg
-        mov ebx,0x20
         mov edx,0
         int 0xf0
         dec ecx
@@ -153,7 +154,8 @@ copyb8000:
         add edi,eax
         mov eax,0
         mov ds,ax
-        mov ah,cl
+        cs
+        mov ah,[colorss]
         push cs
         pop es
         copyb8000ss:
@@ -193,7 +195,8 @@ clear:
         mov es,ax
         mov edi,0b8000h
         mov ecx,2080
-        mov ah,dl
+        cs
+        mov ah,[colorss]
         mov al,20h
         clearss:
                 ds
@@ -203,6 +206,25 @@ clear:
                 dec ecx
                 cmp ecx,0h
                 jnz clearss
+        pop es
+        pop ds
+        pop esi
+        pop edi
+        pop edx 
+        pop ecx
+        pop ebx
+        pop eax
+        ret
+setColor:
+        push eax
+        push ebx
+        push ecx
+        push edx
+        push edi
+        push esi
+        push ds
+        push es
+        mov [colorss],al
         pop es
         pop ds
         pop esi
@@ -252,6 +274,10 @@ IntF0:
              jnz IntF02
              call locate
              IntF02:
+             cmp edx,3
+             jnz IntF03
+             call setColor
+             IntF03:
 
         pop es
         pop ds
@@ -270,5 +296,7 @@ xxxx:
 dd 0
 yyyy:
 dd 0
+colorss:
+dd 2
 msg:
 db "hello world...",0
