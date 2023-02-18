@@ -35,13 +35,15 @@ scrollb8000:
         add esi,eax
         mov eax,0
         mov es,ax
-        mov ecx,4000
+        mov ecx,2080
         scrollb8000s:
                 es
-                mov byte al,[esi]
+                mov word ax,[esi]
                 es
-                mov byte [edi],al
+                mov word [edi],ax
                 inc esi
+                inc esi
+                inc edi
                 inc edi
                 dec ecx
                 cmp ecx,0
@@ -194,7 +196,7 @@ clear:
         mov ds,ax
         mov es,ax
         mov edi,0b8000h
-        mov ecx,2080
+        mov ecx,2160
         cs
         mov ah,[colorss]
         mov al,20h
