@@ -1,23 +1,26 @@
         ORG   100h
 USE16
 call intF0set
-        mov edx,3
-        mov al,0x20
-        int 0xf0
-        mov edx,1
-        int 0xf0
-mov eax,0
-mov ebx,22
-        mov edx,2
-        int 0xf0
-mov ecx,16
-for1:
-        mov ax,msg
+        mov ax,msg3
         mov edx,0
         int 0xf0
-        dec ecx
-        cmp ecx,0
-        jnz for1
+        mov ax,msg2
+        mov edx,0
+        int 0xf0
+        mov edx,2
+        int 0xf0
+        mov ax,msg10
+        mov edx,0
+        int 0xf0
+        mov ax,msg11
+        mov edx,0
+        int 0xf0
+        mov ax,msg12
+        mov edx,0
+        int 0xf0
+        mov ax,msg13
+        mov edx,0
+        int 0xf0
 call exit
 ret
 scrollb8000:
@@ -69,16 +72,16 @@ print:
         push es
         push ax
         mov ecx,ebx
-        ds
+        cs
         mov dword eax,[xxxx]
         pop bx
         call copyb8000
-        ds
+        cs
         mov dword [xxx],0
-        ds
+        cs
         mov dword eax,[yyy]
         inc eax
-        ds
+        cs
         mov dword [yyy],eax
         cmp eax,24
         jb prints
@@ -110,17 +113,18 @@ locate:
         push esi
         push ds
         push es
+        cs
         mov dword [xxx],eax
-        ds
+        cs
         mov dword [yyy],ebx
         cmp eax,80
         jb locates
-        ds
+        cs
         mov dword [xxx],79
         locates:
         cmp ebx,24
         jb locatess
-        ds
+        cs
         mov dword [yyy],23
         locatess:
         push eax
@@ -132,7 +136,7 @@ locate:
         pop ebx
         add eax,ebx
         add eax,ebx
-        ds
+        cs
         mov [xxxx],eax
         pop es
         pop ds
@@ -163,17 +167,19 @@ copyb8000:
         copyb8000ss:
                 es
                 mov al,[bx]
+                cmp al,27
+                jnz copyb8000ssss
+                call escapeCode
+                copyb8000ssss:
                 ds
-                mov [edi],al
+                mov [edi],ax
                 inc ebx
                 inc edi
-                ds
-                mov [edi],ah
                 inc edi
                 cmp al,0
                 jnz copyb8000ss
         copyb8000sss:
-        pop es
+         pop es
         pop ds
         pop esi
         pop edi
@@ -217,6 +223,149 @@ clear:
         pop ebx
         pop eax
         ret
+escapeCode:
+        push ecx
+        push edx
+        push esi
+        push ds
+        push es
+        push edi
+        mov ch,0
+        mov cl,0
+        mov dl,0
+        mov dh,0
+        mov si,0
+        mov di,0
+        escapeCodes:
+               inc bx
+               es
+               mov al,[bx]
+               cmp al,27
+               jz escapeCodes
+               cmp al,0
+               jnz escapeCodess8
+               pop edi
+               jmp escapeCodess
+               escapeCodess8:
+               cmp al,'c'
+               jnz escapeCodesss
+               call clear
+               pop edi
+               jmp escapeCodess
+               escapeCodesss:
+               cmp al,'['
+               jnz escapeCodess
+               escapeCodessss:
+               inc bx
+               es
+               mov al,[bx]
+               cmp al,0
+               jnz escapeCodess16
+               jmp escapeCodess
+               escapeCodess16:
+               cmp al,27
+               jz escapeCodes
+               cmp al,'f'
+               jz escapeCodessf
+               cmp al,'m'
+               jz escapeCodessm
+               cmp al,';'
+               jnz escapeCodessv
+               inc dh
+               mov dl,0
+               jmp escapeCodessss
+               escapeCodessv:
+               cmp al,'0'
+               jb escapeCodess
+               cmp al,'9'
+               ja escapeCodess
+               sub al,'0'
+               cmp dl,0
+               jnz escapeCodessdl1
+               mov ah,0
+               push dx
+               push cx
+               push bx
+               mov bx,10
+               imul bx
+               pop bx
+               pop cx
+               pop dx
+               mov ah,0
+               or si,ax
+               inc dl
+               jmp escapeCodessdl2
+               escapeCodessdl1:
+               push bx
+               mov ah,0
+               or si,ax
+               pop bx
+               escapeCodessdl2:
+               cmp dh,0
+               jnz escapeCodessdh1
+               mov di,si
+               mov si,0
+               escapeCodessdh1:
+               jmp escapeCodessss
+               escapeCodessf:
+               pop eax
+               inc bx
+               push bx
+               mov eax,0
+               mov ebx,0
+               mov bx,di
+               mov ax,si
+               call locate
+                       cs
+                       mov dword eax,[xxxx]
+                       mov edi,eax
+                       mov eax,0b8000h
+                       add edi,eax
+               pop bx
+
+               jmp escapeCodess
+               escapeCodessm:
+               push bx
+               mov eax,0
+               sub si,30
+               sub di,30
+               cmp si,9
+               jb escapeCodessmm
+               sub si,10
+               and si,3
+               shl si,4
+               or ax,si
+               jmp escapeCodessmm2
+               escapeCodessmm:
+               and si,3
+               or ax,si
+               escapeCodessmm2:
+               cmp di,9
+               jb escapeCodessmmm
+               sub di,10
+               and di,3
+               shl di,4
+               or ax,di
+               jmp escapeCodessmmm2
+               escapeCodessmmm:
+               and di,3
+               or ax,di
+               escapeCodessmmm2:
+               call setColor
+               pop bx
+               pop edi
+               jmp escapeCodess
+        escapeCodess:
+        cs
+        mov ah,[colorss]
+        es
+        mov al,[bx]
+        pop es
+        pop ds
+        pop esi
+        pop edx 
+        pop ecx
+        ret
 setColor:
         push eax
         push ebx
@@ -226,6 +375,7 @@ setColor:
         push esi
         push ds
         push es
+        cs
         mov [colorss],al
         pop es
         pop ds
@@ -300,5 +450,15 @@ yyyy:
 dd 0
 colorss:
 dd 2
-msg:
-db "hello world...",0
+msg10:
+db 27,"[00;00fhello world...",0
+msg11:
+db 27,"[01;01fhello world...",0
+msg12:
+db 27,"[02;02fhello world...",0
+msg13:
+db 27,"[06;28fhello world...",0
+msg2:
+db 27,"c",0
+msg3:
+db 27,"[42;30m",0
