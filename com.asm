@@ -250,6 +250,7 @@ escapeCode:
                cmp al,'c'
                jnz escapeCodesss
                call clear
+               inc bx
                pop edi
                jmp escapeCodess
                escapeCodesss:
