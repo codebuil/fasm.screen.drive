@@ -333,23 +333,23 @@ escapeCode:
                cmp si,9
                jb escapeCodessmm
                sub si,10
-               and si,3
+               and si,7
                shl si,4
                or ax,si
                jmp escapeCodessmm2
                escapeCodessmm:
-               and si,3
+               and si,7
                or ax,si
                escapeCodessmm2:
                cmp di,9
                jb escapeCodessmmm
                sub di,10
-               and di,3
+               and di,7
                shl di,4
                or ax,di
                jmp escapeCodessmmm2
                escapeCodessmmm:
-               and di,3
+               and di,7
                or ax,di
                escapeCodessmmm2:
                call setColor
