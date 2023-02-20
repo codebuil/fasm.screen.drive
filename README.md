@@ -1,4 +1,4 @@
 # fasm
-screen drive to fasm protected mode
+screen drive to fasm
 
 ansi system drive
